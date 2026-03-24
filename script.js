@@ -12,7 +12,7 @@ const CONFIG = {
   finalTitle: "生日快乐",
   finalLine: "愿接下来一年工作顺心，杂音退场，老登退散，麻烦绕路！",
   ticket: {
-    no: "No. 20260324-07",
+    no: "No. 20260325-01",
     season: "2026年春演出季",
     showTitle: "沉浸式人生音乐剧《幕已开启·愿望即将上演》",
     showSub: "All your wishes find their way to you.",
@@ -125,6 +125,7 @@ function goScene(target) {
     fireworkState.setMode("opening");
   } else if (target === "cake") {
     fireworkState.setMode("cake");
+    dom.scenes.cake.scrollTop = 0;
     pulseCake();
   } else if (target === "finale") {
     fireworkState.setMode("finale");
@@ -296,16 +297,25 @@ function setupInteractions() {
     }
   });
 
-  dom.ticketCake.addEventListener("pointermove", (event) => {
-    const rect = dom.ticketCake.getBoundingClientRect();
-    const x = (event.clientX - rect.left) / rect.width - 0.5;
-    const y = (event.clientY - rect.top) / rect.height - 0.5;
-    dom.ticketCake.style.transform = `rotateX(${(-y * 8).toFixed(2)}deg) rotateY(${(x * 9).toFixed(2)}deg)`;
-  });
+  const enableTilt = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+  if (enableTilt) {
+    dom.ticketCake.addEventListener("pointermove", (event) => {
+      const rect = dom.ticketCake.getBoundingClientRect();
+      const x = (event.clientX - rect.left) / rect.width - 0.5;
+      const y = (event.clientY - rect.top) / rect.height - 0.5;
+      dom.ticketCake.style.setProperty("--tilt-x", `${(-y * 9).toFixed(2)}deg`);
+      dom.ticketCake.style.setProperty("--tilt-y", `${(x * 11).toFixed(2)}deg`);
+      dom.ticketCake.style.setProperty("--gloss-x", `${((x + 0.5) * 100).toFixed(1)}%`);
+      dom.ticketCake.style.setProperty("--gloss-y", `${((y + 0.5) * 100).toFixed(1)}%`);
+    });
 
-  dom.ticketCake.addEventListener("pointerleave", () => {
-    dom.ticketCake.style.transform = "rotateX(0deg) rotateY(0deg)";
-  });
+    dom.ticketCake.addEventListener("pointerleave", () => {
+      dom.ticketCake.style.setProperty("--tilt-x", "0deg");
+      dom.ticketCake.style.setProperty("--tilt-y", "0deg");
+      dom.ticketCake.style.setProperty("--gloss-x", "24%");
+      dom.ticketCake.style.setProperty("--gloss-y", "12%");
+    });
+  }
 }
 
 function pulseCake() {

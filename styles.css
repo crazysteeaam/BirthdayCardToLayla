@@ -138,6 +138,12 @@ button {
   transform: scale(1);
 }
 
+#scene-cake.active {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
 .scene-inner {
   width: min(94vw, 480px);
   min-height: 100%;
@@ -559,20 +565,35 @@ button {
 
 .cake-inner {
   width: min(96vw, 980px);
+  justify-content: flex-start;
+  min-height: auto;
+  padding-top: 18px;
+  padding-bottom: 24px;
 }
 
 .ticket-cake {
+  --tilt-x: 0deg;
+  --tilt-y: 0deg;
+  --gloss-x: 24%;
+  --gloss-y: 12%;
   position: relative;
   width: min(92vw, 760px);
   border-radius: 16px;
   border: 1px solid #d4cba7;
-  background: #f4f2eb;
+  background:
+    radial-gradient(circle at var(--gloss-x) var(--gloss-y), rgba(255, 255, 255, 0.58), rgba(255, 255, 255, 0.08) 30%, transparent 46%),
+    linear-gradient(162deg, #fbfaf4 0%, #f3efdf 42%, #e9e0c6 100%);
   color: #1f2023;
-  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.38), inset 0 0 0 2px rgba(255, 255, 255, 0.35);
+  box-shadow:
+    0 20px 45px rgba(0, 0, 0, 0.38),
+    0 46px 56px -35px rgba(0, 0, 0, 0.7),
+    inset 0 0 0 2px rgba(255, 255, 255, 0.35);
   overflow: hidden;
   transform-style: preserve-3d;
-  transition: transform 0.2s ease, box-shadow 0.25s ease;
+  transform: perspective(1320px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
+  transition: transform 0.2s ease, box-shadow 0.25s ease, filter 0.25s ease;
   cursor: pointer;
+  touch-action: pan-y;
 }
 
 .ticket-cake::before,
@@ -594,6 +615,21 @@ button {
 .ticket-cake::after {
   right: 0;
   transform: scaleX(-1);
+}
+
+#scene-cake.active .ticket-cake {
+  animation: ticket-pop-in 0.62s cubic-bezier(0.2, 0.75, 0.16, 1);
+}
+
+@keyframes ticket-pop-in {
+  from {
+    opacity: 0;
+    transform: perspective(1320px) rotateX(18deg) rotateY(-9deg) scale(0.93);
+  }
+  to {
+    opacity: 1;
+    transform: perspective(1320px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y)) scale(1);
+  }
 }
 
 .ticket-bg-word {
@@ -626,6 +662,7 @@ button {
 .ticket-bottom {
   position: relative;
   z-index: 1;
+  transform-style: preserve-3d;
 }
 
 .ticket-top {
@@ -634,6 +671,7 @@ button {
   justify-content: space-between;
   gap: 12px;
   padding: 16px 26px 10px;
+  transform: translateZ(20px);
 }
 
 .ticket-brand p {
@@ -662,6 +700,7 @@ button {
 .ticket-heading {
   text-align: center;
   padding: 6px 28px 14px;
+  transform: translateZ(28px);
 }
 
 .ticket-tagline,
@@ -699,6 +738,7 @@ button {
   grid-template-columns: 1.16fr 1fr 1fr;
   border-top: 1px solid rgba(142, 131, 84, 0.22);
   border-bottom: 1px solid rgba(142, 131, 84, 0.22);
+  transform: translateZ(16px);
 }
 
 .ticket-col {
@@ -741,6 +781,7 @@ button {
 
 .ticket-bottom {
   padding: 11px 18px 14px;
+  transform: translateZ(12px);
 }
 
 .ticket-icing {
@@ -802,7 +843,11 @@ button {
 }
 
 .ticket-cake.is-lit {
-  box-shadow: 0 0 25px rgba(255, 229, 165, 0.7), 0 26px 40px rgba(0, 0, 0, 0.5);
+  filter: saturate(1.08);
+  box-shadow:
+    0 0 25px rgba(255, 229, 165, 0.7),
+    0 26px 40px rgba(0, 0, 0, 0.5),
+    0 56px 64px -36px rgba(0, 0, 0, 0.76);
 }
 
 .finale-inner {
