@@ -31,7 +31,7 @@ const CONFIG = {
   ],
   wrongHints: ["这个人今天不是 C 位喔", "再选一次，主角只有一个", "差一点点，今晚主角另有其人"],
   music: {
-    src: "",
+    src: "Tim Minchin - When I Grow Up.m4a",
     autoplayAfterFirstTap: true
   }
 };
