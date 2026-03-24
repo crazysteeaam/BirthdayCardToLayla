@@ -1,16 +1,16 @@
 const CONFIG = {
   birthdayName: "Layla",
-  birthdayDate: "2026.03.24",
+  birthdayDate: "2026.03.25",
   openingLine: "今晚，掌声只属于你",
   openingSubline: "这一场特别演出，为你开幕",
   storyLines: [
     "祝你在 Pokopia 收集到 3 月限定宝可梦。",
     "祝你能到西野们看到桑桑，看到小蛰，看到已经起上名字的三小只。",
-    "祝你网页解密游戏玩不完。",
+    "TypeHelp、福安饭、电视台......祝你各种网页解密游戏玩不完。",
     "祝你今年看上粤剧特朗普和大状王，唐璜看上酱马可。"
   ],
   finalTitle: "生日快乐",
-  finalLine: "接下去一年工作上顺心，没有老登叨扰，没有傻逼捣乱。",
+  finalLine: "接下去一年工作顺心，没有老登叨扰，没有傻逼捣乱。",
   ticket: {
     no: "No. 20260324-07",
     season: "2026年春演出季",
@@ -24,7 +24,7 @@ const CONFIG = {
     message: "今晚唯一主角 · 请尽情闪耀"
   },
   verifyOptions: [
-    { name: "今日寿星", avatar: "🌟", correct: true },
+    { name: "今日寿星·Layla", avatar: "🌟", correct: true },
     { name: "邻座观众", avatar: "🎭", correct: false },
     { name: "幕后导演", avatar: "🎬", correct: false },
     { name: "返场嘉宾", avatar: "🎻", correct: false }
@@ -43,8 +43,10 @@ let verified = false;
 let storyIndex = 0;
 let autoMusicTried = false;
 let toastTimer = null;
+let grandShowRunning = false;
 
 const dom = {
+  app: document.getElementById("app"),
   scenes: Object.fromEntries(sceneIds.map((id) => [id, document.getElementById(`scene-${id}`)])),
   loadingProgress: document.getElementById("loading-progress"),
   loadingText: document.getElementById("loading-text"),
@@ -154,15 +156,15 @@ function renderVerifyOptions() {
   dom.verifyFeedback.className = "verify-feedback";
   dom.verifyFeedback.textContent = " ";
 
-  CONFIG.verifyOptions.forEach((item, idx) => {
+  CONFIG.verifyOptions.slice(0, 4).forEach((item, idx) => {
     const btn = document.createElement("button");
     btn.className = "candidate-btn";
     btn.type = "button";
     btn.dataset.index = String(idx);
-    const avatarMarkup = item.image
-      ? `<span class="candidate-avatar"><img src="${item.image}" alt="${item.name}" /></span>`
-      : `<span class="candidate-avatar">${item.avatar || "🎂"}</span>`;
-    btn.innerHTML = `${avatarMarkup}<span class="candidate-name">${item.name}</span>`;
+    const visualMarkup = item.image
+      ? `<img class="candidate-image" src="${item.image}" alt="${item.name}" />`
+      : `<span class="candidate-fallback">${item.avatar || "🎂"}</span>`;
+    btn.innerHTML = `${visualMarkup}<span class="candidate-overlay"></span><span class="candidate-name">${item.name}</span>`;
     btn.addEventListener("click", () => handleVerifyClick(btn, item));
     dom.candidateGrid.appendChild(btn);
   });
@@ -309,7 +311,7 @@ function setupInteractions() {
 function pulseCake() {
   dom.ticketCake.classList.add("is-lit");
   sparkleBurst();
-  fireworkState.burst(3);
+  runGrandFireworksShow();
   window.setTimeout(() => dom.ticketCake.classList.remove("is-lit"), 1200);
 }
 
@@ -317,10 +319,95 @@ function sparkleBurst() {
   fireworkState.burst(2);
 }
 
+function runGrandFireworksShow() {
+  if (grandShowRunning) return;
+  grandShowRunning = true;
+  dom.app.classList.add("fireworks-front");
+
+  const waves = [
+    {
+      delay: 0,
+      shots: [
+        [0.22, 0.42, 1.3],
+        [0.78, 0.42, 1.3],
+        [0.5, 0.34, 1.8]
+      ]
+    },
+    {
+      delay: 280,
+      shots: [
+        [0.15, 0.3, 1.4],
+        [0.85, 0.3, 1.4],
+        [0.33, 0.25, 1.2],
+        [0.67, 0.25, 1.2]
+      ]
+    },
+    {
+      delay: 620,
+      shots: [
+        [0.1, 0.46, 1.35],
+        [0.9, 0.46, 1.35],
+        [0.5, 0.2, 2.1]
+      ]
+    },
+    {
+      delay: 980,
+      shots: [
+        [0.25, 0.22, 1.45],
+        [0.5, 0.18, 1.85],
+        [0.75, 0.22, 1.45]
+      ]
+    },
+    {
+      delay: 1360,
+      shots: [
+        [0.2, 0.38, 1.25],
+        [0.4, 0.28, 1.25],
+        [0.6, 0.28, 1.25],
+        [0.8, 0.38, 1.25],
+        [0.5, 0.24, 2.2]
+      ]
+    },
+    {
+      delay: 1780,
+      shots: [
+        [0.14, 0.2, 1.55],
+        [0.86, 0.2, 1.55],
+        [0.32, 0.43, 1.25],
+        [0.68, 0.43, 1.25]
+      ]
+    }
+  ];
+
+  waves.forEach((wave) => {
+    window.setTimeout(() => {
+      wave.shots.forEach(([xRate, yRate, intensity]) => {
+        fireworkState.burstAt(window.innerWidth * xRate, window.innerHeight * yRate, intensity);
+      });
+    }, wave.delay);
+  });
+
+  window.setTimeout(() => {
+    grandShowRunning = false;
+    dom.app.classList.remove("fireworks-front");
+  }, 2600);
+}
+
 function createFireworksEngine() {
   const canvas = document.getElementById("fireworks-canvas");
   const ctx = canvas.getContext("2d");
   const particles = [];
+  const baseColors = [
+    "#ff4d6d",
+    "#ff7f50",
+    "#ffb703",
+    "#ffd60a",
+    "#00bbf9",
+    "#4cc9f0",
+    "#80ed99",
+    "#9b5de5",
+    "#f15bb5"
+  ];
   let lastTs = 0;
   let mode = "idle";
   let autoTimer = 0;
@@ -335,27 +422,37 @@ function createFireworksEngine() {
   }
 
   function burst(customCount = 1) {
-    const baseColors = ["#ffd28d", "#f6a9a9", "#f5eac2", "#ffc0cb", "#f9b86f"];
     for (let j = 0; j < customCount; j += 1) {
       const x = window.innerWidth * (0.2 + Math.random() * 0.6);
       const y = window.innerHeight * (0.2 + Math.random() * 0.45);
-      const num = 24 + Math.floor(Math.random() * 18);
-      const color = baseColors[Math.floor(Math.random() * baseColors.length)];
+      spawnExplosion(x, y, 1);
+    }
+  }
 
-      for (let i = 0; i < num; i += 1) {
-        const angle = (Math.PI * 2 * i) / num;
-        const speed = 0.7 + Math.random() * 2;
-        particles.push({
-          x,
-          y,
-          vx: Math.cos(angle) * speed,
-          vy: Math.sin(angle) * speed,
-          size: 1 + Math.random() * 2,
-          life: 0,
-          maxLife: 50 + Math.random() * 35,
-          color
-        });
-      }
+  function spawnExplosion(x, y, intensity = 1) {
+    const num = Math.floor((24 + Math.random() * 18) * intensity);
+
+    for (let i = 0; i < num; i += 1) {
+      const angle = (Math.PI * 2 * i) / num;
+      const speed = 0.65 + Math.random() * (1.8 + intensity);
+      const color = baseColors[Math.floor(Math.random() * baseColors.length)];
+      particles.push({
+        x: x + (Math.random() - 0.5) * 12,
+        y: y + (Math.random() - 0.5) * 12,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        size: 1 + Math.random() * (2.1 + intensity * 0.2),
+        life: 0,
+        maxLife: 48 + Math.random() * (34 + intensity * 12),
+        color
+      });
+    }
+  }
+
+  function burstAt(x, y, intensity = 1.2) {
+    const groups = intensity >= 1.9 ? 2 : 1;
+    for (let i = 0; i < groups; i += 1) {
+      spawnExplosion(x, y, intensity);
     }
   }
 
@@ -392,11 +489,14 @@ function createFireworksEngine() {
       const alpha = 1 - p.life / p.maxLife;
       ctx.globalAlpha = alpha;
       ctx.fillStyle = p.color;
+      ctx.shadowColor = p.color;
+      ctx.shadowBlur = 8;
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
       ctx.fill();
     }
     ctx.globalAlpha = 1;
+    ctx.shadowBlur = 0;
 
     requestAnimationFrame(tick);
   }
@@ -409,7 +509,8 @@ function createFireworksEngine() {
     setMode(nextMode) {
       mode = nextMode;
     },
-    burst
+    burst,
+    burstAt
   };
 }
 
