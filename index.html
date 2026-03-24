@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>生日专属剧场</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div id="app">
+      <canvas id="fireworks-canvas" aria-hidden="true"></canvas>
+      <div class="ambient-overlay" aria-hidden="true"></div>
+
+      <button id="music-toggle" class="music-toggle" type="button" aria-label="背景音乐开关">
+        <span class="music-icon">♪</span>
+      </button>
+
+      <audio id="bgm" loop preload="none"></audio>
+
+      <main id="scene-container" aria-live="polite">
+        <section id="scene-loading" class="scene active" data-scene="loading">
+          <div class="scene-inner loading-inner">
+            <p class="scene-kicker">Birthday Night · Exclusive Stage</p>
+            <h1 class="scene-title">今晚有一场专属演出即将开始</h1>
+            <p class="scene-subtitle">请稍候，舞台正在点亮</p>
+            <div class="loading-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+              <span id="loading-progress"></span>
+            </div>
+            <p id="loading-text" class="loading-text">舞台布景加载中 0%</p>
+          </div>
+        </section>
+
+        <section id="scene-verify" class="scene" data-scene="verify">
+          <div class="scene-inner verify-inner">
+            <p class="scene-kicker">身份核验中</p>
+            <h2 class="scene-title">请选择今天的主角</h2>
+            <p class="scene-subtitle">选对后，专属生日剧场将为你开幕</p>
+            <div id="candidate-grid" class="candidate-grid"></div>
+            <p id="verify-feedback" class="verify-feedback"> </p>
+          </div>
+        </section>
+
+        <section id="scene-opening" class="scene" data-scene="opening">
+          <div class="scene-inner opening-inner">
+            <div class="spotlight"></div>
+            <p class="scene-kicker">Act I · Opening</p>
+            <h2 id="opening-line" class="opening-line"></h2>
+            <p id="opening-subline" class="scene-subtitle"></p>
+            <button id="open-to-story" class="cta-btn hidden" type="button">继续</button>
+          </div>
+        </section>
+
+        <section id="scene-story" class="scene" data-scene="story">
+          <div class="scene-inner story-inner">
+            <p class="scene-kicker">Act II · For You</p>
+            <div id="story-cards" class="story-cards"></div>
+            <div class="story-nav">
+              <button id="story-prev" class="ghost-btn" type="button">上一幕</button>
+              <span id="story-indicator" class="story-indicator"></span>
+              <button id="story-next" class="cta-btn" type="button">下一幕</button>
+            </div>
+          </div>
+        </section>
+
+        <section id="scene-entry" class="scene" data-scene="entry">
+          <div class="scene-inner entry-inner">
+            <p class="scene-kicker">Interlude</p>
+            <h2 class="scene-title">最后，还有一份今晚的限定纪念</h2>
+            <p class="scene-subtitle">点开这张票，领取属于你的生日蛋糕</p>
+            <button id="entry-to-cake" class="ticket-entry" type="button">
+              <span>ENTER THE FINAL ACT</span>
+              <strong>点击进入蛋糕</strong>
+            </button>
+          </div>
+        </section>
+
+        <section id="scene-cake" class="scene" data-scene="cake">
+          <div class="scene-inner cake-inner">
+            <p class="scene-kicker">Act III · Special Birthday Show</p>
+            <div id="ticket-cake" class="ticket-cake" role="button" tabindex="0" aria-label="点亮票根蛋糕">
+              <p class="ticket-bg-word ticket-bg-word-top" aria-hidden="true">Culture square</p>
+              <p class="ticket-bg-word ticket-bg-word-bottom" aria-hidden="true">纪念票</p>
+
+              <div class="ticket-top">
+                <div class="ticket-brand">
+                  <p class="brand-cn">上海文化广场</p>
+                  <p class="brand-en">Shanghai Culture Square</p>
+                </div>
+                <p class="ticket-no" id="ticket-no"></p>
+              </div>
+
+              <div class="ticket-heading">
+                <p class="ticket-tagline">人生好梦 尽逐春风</p>
+                <p class="ticket-season" id="ticket-season"></p>
+                <h3 class="ticket-show-title" id="ticket-show-title"></h3>
+                <p class="ticket-show-sub" id="ticket-show-sub"></p>
+              </div>
+
+              <div class="ticket-main">
+                <div class="ticket-col">
+                  <p class="ticket-label">姓名/Name</p>
+                  <p class="ticket-value ticket-name" id="ticket-name"></p>
+                  <p class="ticket-label">祝福/Message</p>
+                  <p class="ticket-value ticket-message" id="ticket-message"></p>
+                </div>
+
+                <div class="ticket-col">
+                  <p class="ticket-label">地点/Place</p>
+                  <p class="ticket-value" id="ticket-place"></p>
+                  <p class="ticket-label">区域/Section</p>
+                  <p class="ticket-value" id="ticket-section"></p>
+                  <p class="ticket-label">座位/Seat</p>
+                  <p class="ticket-value" id="ticket-seat"></p>
+                </div>
+
+                <div class="ticket-col">
+                  <p class="ticket-label">日期/Date</p>
+                  <p class="ticket-value" id="ticket-date"></p>
+                  <p class="ticket-label">时间/Time</p>
+                  <p class="ticket-value" id="ticket-session"></p>
+                  <p class="ticket-label">票种/Type</p>
+                  <p class="ticket-value" id="ticket-type"></p>
+                </div>
+              </div>
+
+              <div class="ticket-bottom">
+                <div class="ticket-icing" aria-hidden="true"></div>
+                <div class="candles" aria-hidden="true">
+                  <span></span><span></span><span></span>
+                </div>
+              </div>
+            </div>
+            <p class="scene-subtitle">轻触票根，点亮这一刻</p>
+            <button id="cake-to-finale" class="cta-btn" type="button">收下祝福</button>
+          </div>
+        </section>
+
+        <section id="scene-finale" class="scene" data-scene="finale">
+          <div class="scene-inner finale-inner">
+            <p class="scene-kicker">Curtain Call</p>
+            <h2 class="scene-title" id="final-title"></h2>
+            <p class="scene-subtitle" id="final-line"></p>
+            <button id="restart" class="ghost-btn" type="button">再看一次</button>
+          </div>
+        </section>
+      </main>
+
+      <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
